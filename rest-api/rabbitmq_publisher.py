@@ -3,6 +3,7 @@ import pika
 import json
 import time
 from threading import Thread
+import os
 
 LOGGER = logging.getLogger(__name__)    
 
@@ -337,7 +338,9 @@ class Publisher(object):
 
 
 # Connect to localhost:5672 as guest with the password guest and virtual host "/" (%2F)
-example = Publisher('amqp://guest:guest@bus-rabbit:5672/%2F?connection_attempts=3&heartbeat_interval=3600', 'vm_management', 'vm_create', 'vm_create')
+example = Publisher('amqp://guest:guest@'+os.environ['BUS_RABBIT']+':5672/%2F?connection_attempts=3&heartbeat_interval=3600', 'vm_management', 'vm_create', 'vm_create')
+
+# example = Publisher('amqp://guest:guest@bus-rabbit:5672/%2F?connection_attempts=3&heartbeat_interval=3600', 'vm_management', 'vm_create', 'vm_create')
 # example = Publisher('amqp://guest:guest@localhost:5672/%2F?connection_attempts=3&heartbeat_interval=3600', 'vm_management', 'vm_create', 'vm_create')
 
 

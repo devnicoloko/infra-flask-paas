@@ -6,7 +6,6 @@ from routes_vm import routes_vm
 from routes_main import routes_main
 from routes_connect import routes_connect
 
-
 app = Flask(__name__)
 Swagger(app)
 

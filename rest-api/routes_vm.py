@@ -3,6 +3,7 @@ import json
 from rabbitmq_publisher import example
 from flask import Blueprint, request, Response
 import requests
+import os
 
 routes_vm = Blueprint('routes_vm', __name__)
 
@@ -14,7 +15,7 @@ def before_request():
       headers = {'X-Auth-Token': '7a04a385b907caca141f'}
       
       token = request.json.get('token')
-      url = 'http://dk-keystone:35357/v2.0/tokens/'+token
+      url = 'http://'+os.environ['AUTH_KEYSTONE']+':35357/v2.0/tokens/'+token
 
       LOGGER.info(url)
 

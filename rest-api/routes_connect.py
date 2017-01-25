@@ -2,10 +2,13 @@ import logging
 import json
 from flask import Blueprint, request
 import requests
+import os
 
 routes_connect = Blueprint('routes_connect', __name__)
 
-LOGGER = logging.getLogger(__name__)    
+LOGGER = logging.getLogger(__name__)
+
+keystone_auth = os.environ['AUTH_KEYSTONE']
 
 @routes_connect.route('/testtoken', methods=['POST'])
 def test_token():
@@ -36,7 +39,7 @@ def test_token():
       
       
       token = request.json.get('token')
-      url = 'http://dk-keystone:35357/v2.0/tokens/'+token
+      url = 'http://'+keystone_auth+':35357/v2.0/tokens/'+token
 
       LOGGER.info(url)
       LOGGER.info(headers)
@@ -86,7 +89,7 @@ def keystone_connect():
 
       LOGGER.info(post_data)
 
-      resp = requests.post('http://dk-keystone:35357/v2.0/tokens', data = json.dumps(post_data), headers = headers)
+      resp = requests.post('http://'+keystone_auth+':35357/v2.0/tokens', data = json.dumps(post_data), headers = headers)
       # curl -d '{"auth":{"passwordCredentials":{"username": "Joe", "password": "1234"}}}'  \
       # -H "Content-type: application/json" \
       # http://localhost:35357/v2.0/tokens

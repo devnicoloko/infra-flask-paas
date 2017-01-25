@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: keystone-deployment
+spec:
+  replicas: 1
+  template: 
+    metadata:
+      labels:
+        app: keystone
+    spec:
+      containers:
+      - name: keystone-inst
+        image: 192.168.99.100:5000/docker-openstack-keystone
+        ports:
+        - containerPort: 35357
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keystone-management
+spec:
+  ports:
+    - port: 35357
+      targetPort: 35357
+  selector:
+    app: keystone
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keystone-service
+spec:
+  ports:
+    - port: 35357
+      targetPort: 35357
+  selector:
+    app: keystone
+  type: ClusterIP

@@ -1,6 +1,7 @@
 import logging
-import time
 from rabbitmq_consumer import launch_rabbitmq, example
+from redisclass import DBRedis
+import json
 
 LOG_FORMAT = ('%(levelname) -10s %(asctime)s %(name) -30s %(funcName) '
                 '-35s %(lineno) -5d: %(message)s')
@@ -9,6 +10,7 @@ LOG_FORMAT = ('%(levelname) -10s %(asctime)s %(name) -30s %(funcName) '
 logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
 
 LOGGER = logging.getLogger(__name__)
+
 
 def on_message(unused_channel, basic_deliver, properties, body):
     """Invoked by pika when a message is delivered from RabbitMQ. The
@@ -27,14 +29,12 @@ def on_message(unused_channel, basic_deliver, properties, body):
     LOGGER.info('Received message # %s from %s: %s',
                 basic_deliver.delivery_tag, properties.app_id, body)
     
+    message = json.loads(body)
+
+    LOGGER.info(message.get('vm_hostname'))
+    redis.save_json(message,message.get('vm_hostname'))
     
     example.on_message_ack(basic_deliver)
-    LOGGER.info('Work in progress')
-
-    time.sleep( 90 )
-
-    LOGGER.info('Work end !')
-
 
 def on_reconnect(self, unused_frame):
         """Invoked by pika when the queue.Bind method has completed. At this
@@ -48,11 +48,11 @@ def on_reconnect(self, unused_frame):
         example.start_consuming('reader', on_message)
 
 
+redis = DBRedis()
+
 launch_rabbitmq.start()
+example.start_consuming('reader', on_message)
+example.on_bindok = on_reconnect
 
 LOGGER.info('test blabla')
-example.start_consuming('vm_delete', on_message)
-example.start_consuming('vm_create', on_message)
 
-
-example.on_bindok = on_reconnect
