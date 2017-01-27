@@ -289,7 +289,7 @@ class Publisher(object):
         """Run the example code by connecting and then starting the IOLoop.
 
         """
-        while not self._stopping:
+        while True:
             self._connection = None
             self._deliveries = []
             self._acked = 0
@@ -297,13 +297,11 @@ class Publisher(object):
             self._message_number = 0
 
             try:
+                LOGGER.info('Try connect')
                 self._connection = self.connect()
                 self._connection.ioloop.start()
-            except KeyboardInterrupt:
-                self.stop()
-                #if (self._connection is not None and not self._connection.is_closed):
-                    # Finish closing
-                    # self._connection.ioloop.start()
+            except Exception:
+                LOGGER.info('error AMQP connexion')
                 
         LOGGER.info('Stopped')
 
@@ -340,6 +338,7 @@ class Publisher(object):
 # Connect to localhost:5672 as guest with the password guest and virtual host "/" (%2F)
 example = Publisher('amqp://guest:guest@'+os.environ['BUS_RABBIT']+':5672/%2F?connection_attempts=3&heartbeat_interval=3600', 'vm_management', 'vm_create', 'vm_create')
 
+
 # example = Publisher('amqp://guest:guest@bus-rabbit:5672/%2F?connection_attempts=3&heartbeat_interval=3600', 'vm_management', 'vm_create', 'vm_create')
 # example = Publisher('amqp://guest:guest@localhost:5672/%2F?connection_attempts=3&heartbeat_interval=3600', 'vm_management', 'vm_create', 'vm_create')
 
@@ -349,5 +348,7 @@ def configure():
     example.setup_queue('reader', 'vm_create')
     example.queue_add_routing_key('reader', 'vm_delete')
     example.queue_add_routing_key('vm_delete', 'vm_delete')
+    example.queue_add_routing_key('reader', 'reader')
+    
 
 launch_rabbitmq = Thread(target=example.run)

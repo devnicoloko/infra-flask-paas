@@ -4,29 +4,32 @@ from rabbitmq_publisher import example
 from flask import Blueprint, request, Response
 import requests
 import os
+import uuid
+from redisclass import DBRedis
 
 routes_vm = Blueprint('routes_vm', __name__)
 
 LOGGER = logging.getLogger(__name__) 
+
+redis = DBRedis()
+
+user_name = ""
 
 @routes_vm.before_request
 def before_request():
       LOGGER.info('before request in vm')
       headers = {'X-Auth-Token': '7a04a385b907caca141f'}
       
-      token = request.json.get('token')
+      token = request.headers.get('X-TOKEN')
       url = 'http://'+os.environ['AUTH_KEYSTONE']+':35357/v2.0/tokens/'+token
 
-      LOGGER.info(url)
-
       resp = requests.get(url, headers=headers)
-      LOGGER.info(resp)
 
       if(200 <= resp.status_code < 300):
-        LOGGER.info(resp.text)
+        LOGGER.info('user_id: '+resp.json()['access']['user']['id'])
+        user_name=resp.json()['access']['user']['id']
         return
       else:
-        LOGGER.info(resp.text)
         return Response(status_code=401,status=resp.text)
       
 
@@ -36,6 +39,8 @@ def vm_create():
       Route to create vm
       This API is made with Flask and send data to RabbitMQ
       ---
+      tags:
+          - vmmanagement
       parameters:
         - name: body
           in: body
@@ -68,6 +73,10 @@ def vm_create():
                 enum: 
                   - GreaterParis
                   - North
+        - name: X-TOKEN
+          in: header
+          required: True
+          type: string
       responses:
         200:
           description: VM create command receive, wait for it
@@ -83,6 +92,11 @@ def vm_create():
       if "lx" in vm_hostname:
       
         message = request.json
+        message['uuid']= str(uuid.uuid4())
+        message['owner']=user_name
+        message['state']='INPROGRESS'
+
+        msg['uuid']=message['uuid']
 
         LOGGER.info(message)  
         example.publish_message(message, 'vm_create')
@@ -91,6 +105,7 @@ def vm_create():
         msg = {'request_error': 'bad hostname'}
         code_return = 400
       
+
       return json.dumps(msg), code_return
 
 @routes_vm.route('/', methods=['DELETE'])
@@ -99,6 +114,8 @@ def vm_delete():
       Route to delete vm
       This API is made with Flask and send data to RabbitMQ
       ---
+      tags:
+          - vmmanagement
       parameters:
         - name: body
           in: body
@@ -110,6 +127,10 @@ def vm_delete():
                 type: string
               vm_hostname:
                 type: string
+        - name: X-TOKEN
+          in: header
+          required: True
+          type: string
 
       responses:
         200:
@@ -135,3 +156,37 @@ def vm_delete():
         code_return = 400
       
       return json.dumps(msg), code_return
+
+@routes_vm.route('/<string:vmuuid>', methods=['GET'])
+def vm_state(vmuuid):
+      """
+      Route to delete vm
+      This API is made with Flask and send data to RabbitMQ
+      ---
+      tags:
+          - vmmanagement
+      parameters:
+        - name: vmuuid
+          in: path
+          required: true
+          type: string
+        - name: X-TOKEN
+          in: header
+          required: True
+          type: string
+      responses:
+        200:
+          description: VM state command
+          schema:
+            id: data_create_vm
+        400:
+          description: Erreur dans la requete
+        500:
+          description: too bad error
+      """
+      code_return = 200
+
+      msg = redis.get_json(vmuuid)
+      
+      LOGGER.info(msg)
+      return msg, code_return

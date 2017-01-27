@@ -1,6 +1,7 @@
 import logging
 import time
 from rabbitmq_consumer import launch_rabbitmq, example
+import json
 
 LOG_FORMAT = ('%(levelname) -10s %(asctime)s %(name) -30s %(funcName) '
                 '-35s %(lineno) -5d: %(message)s')
@@ -26,17 +27,22 @@ def on_message(unused_channel, basic_deliver, properties, body):
     """
     LOGGER.info('Received message # %s from %s: %s',
                 basic_deliver.delivery_tag, properties.app_id, body)
-    
-    
     example.on_message_ack(basic_deliver)
-    LOGGER.info('Work in progress')
+
+    
+    LOGGER.info('load body...')
+    message = json.loads(body)
 
     time.sleep( 90 )
 
-    LOGGER.info('Work end !')
+    message['state']='SUCCESSFULL'
+
+    LOGGER.info('Work end !' + str(message))
+
+    example.publish_message(message, 'reader')
 
 
-def on_reconnect(self, unused_frame):
+def on_reconnect(unused_frame):
         """Invoked by pika when the queue.Bind method has completed. At this
         point we will start consuming messages by calling start_consuming
         which will invoke the needed RPC commands to start the process.
@@ -45,14 +51,13 @@ def on_reconnect(self, unused_frame):
 
         """
         LOGGER.info('queue bound')
-        example.start_consuming('reader', on_message)
+        example.start_consuming('vm_delete', on_message)
+        example.start_consuming('vm_create', on_message)
 
 
 launch_rabbitmq.start()
 
-LOGGER.info('test blabla')
 example.start_consuming('vm_delete', on_message)
 example.start_consuming('vm_create', on_message)
-
 
 example.on_bindok = on_reconnect

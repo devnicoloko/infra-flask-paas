@@ -16,6 +16,8 @@ def test_token():
       Route to test Keystone token
       This API is made with Flask and send data to Keystone
       ---
+      tags:
+          - connect
       parameters:
         - name: body
           in: body
@@ -57,6 +59,8 @@ def keystone_connect():
       Route to get Keystone token
       This API is made with Flask and send data to Keystone
       ---
+      tags:
+          - connect
       parameters:
         - name: body
           in: body

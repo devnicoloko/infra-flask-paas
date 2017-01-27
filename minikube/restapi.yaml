@@ -19,6 +19,8 @@ spec:
           value: rabbitmq-service
         - name: AUTH_KEYSTONE
           value: keystone-service
+        - name: DB_REDIS
+          value: redis-service
 ---
 apiVersion: v1
 kind: Service

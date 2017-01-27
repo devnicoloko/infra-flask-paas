@@ -11,6 +11,8 @@ def hello_world():
       Micro Service Based on Flask
       Base route test for hello_world
       ---
+      tags:
+          - test
       responses:
         200:
           description: Flask in Docker

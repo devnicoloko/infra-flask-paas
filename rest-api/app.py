@@ -7,6 +7,17 @@ from routes_main import routes_main
 from routes_connect import routes_connect
 
 app = Flask(__name__)
+app.config['SWAGGER'] = {
+    "swagger_version": "2.0",
+    "specs": [
+        {
+            "version": "0.0.1",
+            "title": "RET PaaS Automation Beta",
+            "endpoint": 'v1_spec',
+            "route": '/v1/spec',
+        }
+    ]
+}
 Swagger(app)
 
 

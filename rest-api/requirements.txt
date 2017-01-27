@@ -3,3 +3,4 @@ flasgger==0.5.2
 pika==0.10.0
 requests==2.12.5
 Blueprint==3.4.2
+redis==2.10.5

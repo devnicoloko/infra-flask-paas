@@ -5,6 +5,7 @@ import pika
 import time
 from threading import Thread
 import os
+import json
 
 LOGGER = logging.getLogger(__name__)
 
@@ -43,6 +44,9 @@ class Consumer(object):
         self.exchange = prm_exchange
         self.queue = prm_queue
         self.routing_key = prm_routing_key
+
+        self._message_number = None
+        self._deliveries = None
 
     def connect(self):
         """This method connects to RabbitMQ, returning the connection handle.
@@ -322,8 +326,17 @@ class Consumer(object):
         starting the IOLoop to block and allow the SelectConnection to operate.
 
         """
-        self._connection = self.connect()
-        self._connection.ioloop.start()
+        while True:
+            self._message_number = 0
+            self._deliveries = []
+            try:
+                LOGGER.info('Try connect')
+                self._connection = self.connect()
+                self._connection.ioloop.start()
+            except Exception as e:
+                LOGGER.info('error AMQP connexion: ' + str(e))
+                
+        LOGGER.info('Stopped')
 
     def stop(self):
         """Cleanly shutdown the connection to RabbitMQ by stopping the consumer
@@ -346,6 +359,73 @@ class Consumer(object):
         """This method closes the connection to RabbitMQ."""
         LOGGER.info('Closing connection')
         self._connection.close()
+
+    def enable_delivery_confirmations(self):
+        """Send the Confirm.Select RPC method to RabbitMQ to enable delivery
+        confirmations on the channel. The only way to turn this off is to close
+        the channel and create a new one.
+
+        When the message is confirmed from RabbitMQ, the
+        on_delivery_confirmation method will be invoked passing in a Basic.Ack
+        or Basic.Nack method from RabbitMQ that will indicate which messages it
+        is confirming or rejecting.
+
+        """
+        LOGGER.info('Issuing Confirm.Select RPC command')
+        self._channel.confirm_delivery(self.on_delivery_confirmation)
+
+    def on_delivery_confirmation(self, method_frame):
+        """Invoked by pika when RabbitMQ responds to a Basic.Publish RPC
+        command, passing in either a Basic.Ack or Basic.Nack frame with
+        the delivery tag of the message that was published. The delivery tag
+        is an integer counter indicating the message number that was sent
+        on the channel via Basic.Publish. Here we're just doing house keeping
+        to keep track of stats and remove message numbers that we expect
+        a delivery confirmation of from the list used to keep track of messages
+        that are pending confirmation.
+
+        :param pika.frame.Method method_frame: Basic.Ack or Basic.Nack frame
+
+        """
+        confirmation_type = method_frame.method.NAME.split('.')[1].lower()
+        LOGGER.info('Received %s for delivery tag: %i',
+                    confirmation_type,
+                    method_frame.method.delivery_tag)
+        if confirmation_type == 'ack':
+            self._acked += 1
+        elif confirmation_type == 'nack':
+            self._nacked += 1
+        self._deliveries.remove(method_frame.method.delivery_tag)
+        LOGGER.info('Published %i messages, %i have yet to be confirmed, '
+                    '%i were acked and %i were nacked',
+                    self._message_number, len(self._deliveries),
+                    self._acked, self._nacked)
+
+    def publish_message(self, message, routing_key_name):
+        """If the class is not stopping, publish a message to RabbitMQ,
+        appending a list of deliveries with the message number that was sent.
+        This list will be used to check for delivery confirmations in the
+        on_delivery_confirmations method.
+
+        Once the message has been sent, schedule another message to be sent.
+        The main reason I put scheduling in was just so you can get a good idea
+        of how the process is flowing by slowing down and speeding up the
+        delivery intervals by changing the PUBLISH_INTERVAL constant in the
+        class.
+
+        """
+        if self._channel is None or not self._channel.is_open:
+            return
+
+        properties = pika.BasicProperties(app_id='example-publisher',
+                                          content_type='application/json',
+                                          headers=message)
+
+        self._channel.basic_publish(self.exchange, routing_key_name,
+                                    json.dumps(message, ensure_ascii=False),
+                                    properties)
+        self._message_number += 1
+        self._deliveries.append(self._message_number)
 
 
 # Connect to localhost:5672 as guest with the password guest and virtual host "/" (%2F)

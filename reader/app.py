@@ -32,7 +32,7 @@ def on_message(unused_channel, basic_deliver, properties, body):
     message = json.loads(body)
 
     LOGGER.info(message.get('vm_hostname'))
-    redis.save_json(message,message.get('vm_hostname'))
+    redis.save_json(message,message.get('uuid'))
     
     example.on_message_ack(basic_deliver)
 

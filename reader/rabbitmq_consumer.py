@@ -322,8 +322,15 @@ class Consumer(object):
         starting the IOLoop to block and allow the SelectConnection to operate.
 
         """
-        self._connection = self.connect()
-        self._connection.ioloop.start()
+        while True:
+            try:
+                LOGGER.info('Try connect')
+                self._connection = self.connect()
+                self._connection.ioloop.start()
+            except Exception:
+                LOGGER.info('error AMQP connexion')
+                
+        LOGGER.info('Stopped')
 
     def stop(self):
         """Cleanly shutdown the connection to RabbitMQ by stopping the consumer
