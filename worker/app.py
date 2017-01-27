@@ -29,17 +29,16 @@ def on_message(unused_channel, basic_deliver, properties, body):
                 basic_deliver.delivery_tag, properties.app_id, body)
     example.on_message_ack(basic_deliver)
 
-    
-    LOGGER.info('load body...')
     message = json.loads(body)
 
     time.sleep( 90 )
 
     message['state']='SUCCESSFULL'
 
-    LOGGER.info('Work end !' + str(message))
-
+    LOGGER.info('Work end !')
     example.publish_message(message, 'reader')
+    LOGGER.info('Message publish')
+
 
 
 def on_reconnect(unused_frame):

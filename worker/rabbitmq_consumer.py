@@ -420,10 +420,11 @@ class Consumer(object):
         properties = pika.BasicProperties(app_id='example-publisher',
                                           content_type='application/json',
                                           headers=message)
-
+        LOGGER.info('before publish')
         self._channel.basic_publish(self.exchange, routing_key_name,
                                     json.dumps(message, ensure_ascii=False),
                                     properties)
+        LOGGER.info('after publish')
         self._message_number += 1
         self._deliveries.append(self._message_number)
 

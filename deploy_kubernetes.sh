@@ -38,15 +38,15 @@ kubectl create -f minikube/keystone.yaml
 echo "Minikube ip: $(minikube ip)"
 echo "Keystone port: $(kubectl get service keystone-management --output jsonpath='{.spec.ports[?(@.port==35357)].nodePort}')"
 
-echo "Waiting Keystone to launch on 35357..."
-while ! nc -z $(minikube ip) $(kubectl get service keystone-management --output jsonpath='{.spec.ports[?(@.port==35357)].nodePort}'); do   
-  sleep 1 # wait for 1/10 of the second before check again
-done
+# echo "Waiting Keystone to launch on 35357..."
+# while ! nc -z $(minikube ip) $(kubectl get service keystone-management --output jsonpath='{.spec.ports[?(@.port==35357)].nodePort}'); do   
+#   sleep 1 # wait for 1/10 of the second before check again
+# done
 
-echo "Waiting RabbitMQ to launch on 15672..."
-while ! nc -z $(minikube ip) $(kubectl get service rabbitmq-management --output jsonpath='{.spec.ports[?(@.port==15672)].nodePort}'); do   
-  sleep 1 # wait for 1/10 of the second before check again
-done
+# echo "Waiting RabbitMQ to launch on 15672..."
+# while ! nc -z $(minikube ip) $(kubectl get service rabbitmq-management --output jsonpath='{.spec.ports[?(@.port==15672)].nodePort}'); do   
+#   sleep 1 # wait for 1/10 of the second before check again
+# done
 
 echo "create apps..."
 kubectl create -f minikube/restapi.yaml
@@ -67,6 +67,8 @@ done
 
 echo "RabbitMQ: http://$(minikube ip):$(kubectl get service rabbitmq-management --output jsonpath='{.spec.ports[?(@.port==15672)].nodePort}')"
 echo "REST API Swagger: http://$(minikube ip):$(kubectl get service restapi-service --output jsonpath='{.spec.ports[?(@.port==5000)].nodePort}')/apidocs/index.html"
+open http://$(minikube ip):$(kubectl get service rabbitmq-management --output jsonpath='{.spec.ports[?(@.port==15672)].nodePort}')
+open http://$(minikube ip):$(kubectl get service restapi-service --output jsonpath='{.spec.ports[?(@.port==5000)].nodePort}')/apidocs/index.html
 
 
 # kubectl scale --replicas=3 deployments/worker-deployment

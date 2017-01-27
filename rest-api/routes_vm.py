@@ -48,8 +48,6 @@ def vm_create():
           schema:
             id: data_create_vm
             properties:
-              token:
-                type: string
               app_env:
                 type: string
                 enum:
@@ -123,8 +121,6 @@ def vm_delete():
           schema:
             id: data_delete_vm
             properties:
-              token:
-                type: string
               vm_hostname:
                 type: string
         - name: X-TOKEN
