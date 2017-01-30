@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-cd rest-api && docker build -t flask-app . && cd ../worker && docker build -t worker-app . && cd ../reader && docker build -t reader-app . && cd ..
+cd rest-api && docker build -t flask-app . && cd ../worker && docker build -t worker-app .  && cd ../reader && docker build -t reader-app . && cd ..
 
 eval $(docker-machine env -u)
 docker-machine create \
@@ -30,6 +30,7 @@ docker push $(docker-machine ip registry-vm):5000/worker-app
 
 minikube start --insecure-registry=$(docker-machine ip registry-vm):5000
 minikube dashboard
+minikube addons enable heapster
 
 kubectl create -f minikube/redis.yaml
 kubectl create -f minikube/rabbitmq.yaml
@@ -71,7 +72,7 @@ open http://$(minikube ip):$(kubectl get service rabbitmq-management --output js
 open http://$(minikube ip):$(kubectl get service restapi-service --output jsonpath='{.spec.ports[?(@.port==5000)].nodePort}')/apidocs/index.html
 
 
-# kubectl scale --replicas=3 deployments/worker-deployment
+# kubectl scale --replicas=10 deployments/worker-deployment
 
 # curl -X DELETE -H "X-Auth-Token:7a04a385b907caca141f" http://$(minikube ip):$(kubectl get service keystone-management --output jsonpath='{.spec.ports[?(@.port==35357)].nodePort}')/v2.0/users/1ce8553ef4ca4f2fbc73efbca8723a2a
 
@@ -81,3 +82,8 @@ curl -X POST \
     -H "Content-type: application/json" \
     -d '{"user":{"name":"Laurent","email":"joe@example.com.com","enabled":true,"password":"123"}}' \
     http://$(minikube ip):$(kubectl get service keystone-management --output jsonpath='{.spec.ports[?(@.port==35357)].nodePort}')/v2.0/users
+
+
+while ! minikube addons open heapster; do
+    sleep 1
+done

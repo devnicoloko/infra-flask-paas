@@ -13,7 +13,6 @@ LOGGER = logging.getLogger(__name__)
 
 redis = DBRedis()
 
-user_name = ""
 
 @routes_vm.before_request
 def before_request():
@@ -26,8 +25,6 @@ def before_request():
       resp = requests.get(url, headers=headers)
 
       if(200 <= resp.status_code < 300):
-        LOGGER.info('user_id: '+resp.json()['access']['user']['id'])
-        user_name=resp.json()['access']['user']['id']
         return
       else:
         return Response(status_code=401,status=resp.text)
@@ -91,7 +88,6 @@ def vm_create():
       
         message = request.json
         message['uuid']= str(uuid.uuid4())
-        message['owner']=user_name
         message['state']='INPROGRESS'
 
         msg['uuid']=message['uuid']
