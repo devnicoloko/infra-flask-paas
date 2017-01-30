@@ -10,11 +10,11 @@ Please install:
 
 To deploy localy please use:
 
-```deploy_kubernetes.sh```
+`deploy_kubernetes.sh`
 
 To delete localy:
 
-```delete_kubernetes.sh```
+`delete_kubernetes.sh`
 
 # Schema
 
