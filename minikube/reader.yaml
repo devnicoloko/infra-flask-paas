@@ -4,14 +4,14 @@ metadata:
   name: reader-deployment
 spec:
   replicas: 1
-  template: 
+  template:
     metadata:
       labels:
         app: reader
     spec:
       containers:
       - name: reader-inst
-        image: 192.168.99.100:5000/reader-app
+        image: eu.gcr.io/opteama-stelia/reader-app
         env:
         - name: BUS_RABBIT
           value: rabbitmq-service

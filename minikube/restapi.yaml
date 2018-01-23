@@ -4,14 +4,14 @@ metadata:
   name: restapi-deployment
 spec:
   replicas: 1
-  template: 
+  template:
     metadata:
       labels:
         app: restapi
     spec:
       containers:
       - name: restapi-inst
-        image: 192.168.99.100:5000/flask-app
+        image: eu.gcr.io/opteama-stelia/flask-app
         ports:
         - containerPort: 5000
         env:
@@ -32,4 +32,4 @@ spec:
       targetPort: 5000
   selector:
     app: restapi
-  type: NodePort
+  type: LoadBalancer

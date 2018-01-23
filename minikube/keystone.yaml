@@ -4,14 +4,14 @@ metadata:
   name: keystone-deployment
 spec:
   replicas: 1
-  template: 
+  template:
     metadata:
       labels:
         app: keystone
     spec:
       containers:
       - name: keystone-inst
-        image: 192.168.99.100:5000/docker-openstack-keystone
+        image: eu.gcr.io/opteama-stelia/docker-openstack-keystone
         ports:
         - containerPort: 35357
 ---
@@ -37,4 +37,4 @@ spec:
       targetPort: 35357
   selector:
     app: keystone
-  type: ClusterIP
+  type: LoadBalancer

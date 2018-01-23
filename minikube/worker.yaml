@@ -4,17 +4,16 @@ metadata:
   name: worker-deployment
 spec:
   replicas: 1
-  template: 
+  template:
     metadata:
       labels:
         app: worker
     spec:
       containers:
       - name: worker-inst
-        image: 192.168.99.100:5000/worker-app
+        image: eu.gcr.io/opteama-stelia/worker-app
         env:
         - name: BUS_RABBIT
           value: rabbitmq-service
         - name: AUTH_KEYSTONE
           value: keystone-service
-
