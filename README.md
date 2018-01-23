@@ -1,10 +1,16 @@
 # Requirements
 
-Test on MACOSX, may be compatible on Linux ;-)
+Test on GKE
 
-Please install:
-- Kubectl: https://kubernetes.io/docs/getting-started-guides/kubectl/
-- Minikube: https://kubernetes.io/docs/getting-started-guides/minikube/
+Please configure your GCLOUD env.
+
+# Configuration
+
+Change the project configuration to match your env. 
+
+Example :
+* configure your gcloud shell
+* configure your Google Registry in deploy\_kubernetes.sh and delete\_kubernetes.sh
 
 # Installation
 
@@ -18,11 +24,7 @@ To delete localy:
 
 # Schema
 
-On your host, two vms:
-- "registry_vm" to pop a local Docker registry
-- "minikube" to pop a local Kubernetes
-
-On your Kubernetes:
+On your GKE:
 - infra: redis
 - infra: rabbitmq
 - infra: keystone
