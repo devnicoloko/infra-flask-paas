@@ -7,7 +7,7 @@ kubectl delete -f minikube/restapi.yaml
 kubectl delete -f minikube/reader.yaml
 kubectl delete -f minikube/worker.yaml
 
-ip_registry="eu.gcr.io/opteama-stelia"
+ip_registry="<<CHANGE ME>>"
 
 gcloud container images delete --quiet $ip_registry/redis
 gcloud container images delete --quiet $ip_registry/rabbitmq:3-management
