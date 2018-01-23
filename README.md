@@ -9,7 +9,7 @@ Please configure your GCLOUD env.
 Change the project configuration to match your env. 
 
 Example :
-* configure your gcloud shell
+* configure your gcloud project id
 * configure your Google Registry in deploy\_kubernetes.sh and delete\_kubernetes.sh
 
 # Installation
