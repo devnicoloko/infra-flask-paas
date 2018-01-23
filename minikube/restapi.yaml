@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
       - name: restapi-inst
-        image: eu.gcr.io/opteama-stelia/flask-app
+        image: <<CHANGE ME>>
         ports:
         - containerPort: 5000
         env:

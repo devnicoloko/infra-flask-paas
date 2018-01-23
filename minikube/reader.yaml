@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
       - name: reader-inst
-        image: eu.gcr.io/opteama-stelia/reader-app
+        image: <<CHANGE ME>>
         env:
         - name: BUS_RABBIT
           value: rabbitmq-service

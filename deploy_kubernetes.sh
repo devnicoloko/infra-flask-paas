@@ -7,7 +7,7 @@ docker pull garland/docker-openstack-keystone
 cd rest-api && docker build -t flask-app . && cd ../worker && docker build -t worker-app .  && cd ../reader && docker build -t reader-app . && cd ..
 
 
-ip_registry="eu.gcr.io/opteama-stelia"
+ip_registry="<<CHANGE ME>>"
 docker tag redis $ip_registry/redis
 docker tag rabbitmq:3-management $ip_registry/rabbitmq:3-management
 docker tag garland/docker-openstack-keystone $ip_registry/docker-openstack-keystone

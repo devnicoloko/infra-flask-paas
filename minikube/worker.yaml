@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
       - name: worker-inst
-        image: eu.gcr.io/opteama-stelia/worker-app
+        image: <<CHANGE ME>>
         env:
         - name: BUS_RABBIT
           value: rabbitmq-service

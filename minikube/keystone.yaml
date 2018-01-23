@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
       - name: keystone-inst
-        image: eu.gcr.io/opteama-stelia/docker-openstack-keystone
+        image: <<CHANGE ME>>
         ports:
         - containerPort: 35357
 ---

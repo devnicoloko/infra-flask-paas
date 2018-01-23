@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
       - name: redis-inst
-        image: eu.gcr.io/opteama-stelia/redis
+        image: <<CHANGE ME>>
         ports:
         - containerPort: 6379
 ---
